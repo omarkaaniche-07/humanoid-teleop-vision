@@ -28,6 +28,41 @@ python3 motion_capture_nao_node.py --source path/to/video.mp4 --conf 0.5
 - `--conf` — detection confidence threshold (default 0.5)
 
 There's no default video path baked in anymore — you must pass `--source`.
+### Running with Gazebo simulation
+
+1. **Install Gazebo + ROS2 integration** (skip if already set up):
+```bash
+   sudo apt install ros-<your-ros2-distro>-gazebo-ros-pkgs
+```
+
+2. **Get the NAO robot description/model package**:
+   [PLACEHOLDER — repo/package name + install steps go here]
+
+3. **Build your workspace**:
+```bash
+   cd ~/your_ros2_ws
+   colcon build --symlink-install
+   source install/setup.bash
+```
+
+4. **Launch the simulation** (spawns NAO in Gazebo):
+```bash
+   ros2 launch <nao_package_name> <launch_file_name>.launch.py
+```
+
+5. **In a separate terminal**, run the motion capture node so it starts
+   publishing joint commands the simulated NAO will follow:
+```bash
+   python3 motion_capture_nao_node.py --source path/to/video.mp4 --conf 0.5
+```
+
+6. **Verify it's working**: the NAO model in Gazebo should mirror your
+   movements from the video/webcam feed. If it doesn't move, check that:
+   - The topic names in `JOINT_TO_NAO` match the joint controller topics
+     Gazebo is actually subscribed to (`ros2 topic list` to confirm)
+   - The node's terminal isn't printing `LOST` for the joints you're
+     testing (means detection confidence is too low — try lowering
+     `--conf` or improving lighting/camera framing)
 
 ### What gets published
 One topic per mapped joint under `/nao/<JointName>/cmd_pos`, in radians.
